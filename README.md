@@ -2,6 +2,27 @@
 
 定时抓取广西大学教务系统（正方教务系统）成绩数据，检测新成绩或成绩变动，通过邮件发送通知。基于 Playwright + TypeScript，通过 GitHub Actions 定时执行。
 
+## 前置依赖
+
+- Node.js >= 22
+- pnpm >= 9
+- Playwright 浏览器（脚本自动安装）
+
+```bash
+# macOS
+brew install node pnpm
+
+# Linux (Debian/Ubuntu)
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+corepack enable
+corepack prepare pnpm@latest --activate
+
+# 验证
+node -v
+pnpm -v
+```
+
 ## 快速开始
 
 ```bash
