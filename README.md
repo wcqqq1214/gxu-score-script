@@ -34,6 +34,9 @@ cd gxu-score-script
 pnpm install
 pnpm exec playwright install chromium
 
+# Linux 需要安装系统依赖
+npx playwright install-deps
+
 # 配置环境变量
 cp .env.example .env
 # 编辑 .env 填写学号和密码
