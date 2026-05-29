@@ -46,9 +46,6 @@ async function main() {
       }
     }
 
-    log("notify", "生成通知...");
-    await notify(changes, config.email);
-
     log("email", "发送测试邮件...");
     if (config.email) {
       await notify(
