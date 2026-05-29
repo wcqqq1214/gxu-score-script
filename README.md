@@ -1,6 +1,6 @@
 # GXU 成绩抓取脚本
 
-定时抓取广西大学教务系统（正方教务系统）成绩数据，检测新成绩或成绩变动，通过邮件发送通知。基于 Playwright + TypeScript，通过 GitHub Actions 定时执行。
+定时抓取广西大学教务系统（正方教务系统）成绩数据，检测新成绩或成绩变动，通过邮件发送通知。基于 Playwright + TypeScript，通过 crontab 定时执行。
 
 ## 前置依赖
 
@@ -72,12 +72,20 @@ pnpm run typecheck # tsc 类型检查
 pnpm run check    # 提交前完整检查
 ```
 
-## GitHub Actions
+## 定时执行
 
-在仓库 Settings → Secrets → Actions 中配置上述环境变量，推送代码后自动每 30 分钟执行一次（UTC+8 8:00-23:00）。
+通过 crontab 定时运行，每 30 分钟执行一次（8:00-23:00）：
 
-成绩数据存储在 `data/grades.json`，每次运行后自动 commit 回仓库。
+```bash
+crontab -e
+```
+
+添加以下配置：
+
+```cron
+*/30 8-23 * * * cd /path/to/gxu-score-script && node --env-file=.env --import tsx/esm src/main.ts >> /var/log/gxu-score.log 2>&1
+```
 
 ## 技术栈
 
-TypeScript + Playwright + NodeMailer + GitHub Actions
+TypeScript + Playwright + NodeMailer + crontab
