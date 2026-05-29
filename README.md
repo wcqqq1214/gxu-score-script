@@ -77,7 +77,7 @@ pnpm run check    # 提交前完整检查
 
 ## 定时执行
 
-通过 crontab 定时运行，每 30 分钟执行一次（8:00-23:00）：
+通过 crontab 定时运行，每 30 分钟执行一次（8:00-22:00）：
 
 ```bash
 crontab -e
@@ -86,7 +86,7 @@ crontab -e
 添加以下配置：
 
 ```cron
-*/30 8-23 * * * cd /你的项目路径 && NODE_OPTIONS='--dns-result-order=ipv4first' node --env-file=.env --import tsx/esm src/main.ts >> /var/log/gxu-score.log 2>&1
+*/30 8-22 * * * cd /你的项目路径 && NODE_OPTIONS='--dns-result-order=ipv4first' node --env-file=.env --import tsx/esm src/main.ts >> /var/log/gxu-score.log 2>&1
 ```
 
 ## 技术栈
