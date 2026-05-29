@@ -27,9 +27,9 @@ async function main() {
       log("fetch", `${item.kcmc}: ${item.bfzcj} | 学分: ${item.xf} | ${item.ksxz}`);
     }
 
-    log("store", "检测增量变动...");
     const oldData = loadStore();
-    log("store", `历史记录: ${oldData.size} 条`);
+    const isFirstRun = oldData.size === 0;
+    log("store", `历史记录: ${oldData.size} 条${isFirstRun ? " (首次运行)" : ""}`);
 
     const changes = detectChanges(oldData, grades);
     log("store", `新增: ${changes.added.length} 门, 变动: ${changes.changed.length} 门`);
@@ -46,8 +46,12 @@ async function main() {
       }
     }
 
-    log("notify", "生成通知...");
-    await notify(changes, config.email);
+    if (isFirstRun) {
+      log("notify", "首次运行，跳过通知");
+    } else {
+      log("notify", "生成通知...");
+      await notify(changes, config.email);
+    }
 
     saveStore(grades);
     log("store", `已保存 ${grades.length} 条记录`);
