@@ -1,4 +1,4 @@
-# GXU 成绩抓取脚本
+# 广西大学成绩抓取脚本
 
 定时抓取广西大学教务系统（正方教务系统）成绩数据，检测新成绩或成绩变动，通过邮件发送通知。基于 Playwright + TypeScript，通过 crontab 定时执行。
 
@@ -27,7 +27,7 @@ pnpm -v
 
 ```bash
 # 克隆仓库
-git clone <repo-url>
+git clone git@github.com:wcqqq1214/gxu-score-script.git
 cd gxu-score-script
 
 # 安装依赖 & Playwright 浏览器
