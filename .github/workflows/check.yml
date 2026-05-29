@@ -1,0 +1,45 @@
+name: 成绩监控
+
+on:
+  schedule:
+    - cron: "*/30 0-15 * * *"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - run: pnpm install
+
+      - name: 安装 Playwright 浏览器
+        run: pnpm exec playwright install chromium
+
+      - name: 运行成绩监控
+        env:
+          GXU_STUDENT_ID: ${{ secrets.GXU_STUDENT_ID }}
+          GXU_PASSWORD: ${{ secrets.GXU_PASSWORD }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: pnpm start
+
+      - name: 提交成绩数据
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/grades.json
+          git diff --staged --quiet || git commit -m "chore: 更新成绩数据" && git push
