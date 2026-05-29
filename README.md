@@ -1,4 +1,4 @@
-# GXU 成绩监控
+# GXU 成绩抓取脚本
 
 定时抓取广西大学教务系统（正方教务系统）成绩数据，检测新成绩或成绩变动，通过邮件发送通知。基于 Playwright + TypeScript，通过 GitHub Actions 定时执行。
 
