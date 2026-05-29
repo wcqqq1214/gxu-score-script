@@ -29,10 +29,7 @@ async function main() {
     });
     log("fetch", `获取到 ${grades.length} 条记录`);
     for (const item of grades) {
-      log(
-        "fetch",
-        `${item.kcmc} | ${item.xnmmc} ${item.xqmmc} | 成绩:${item.bfzcj}(${item.cj}) | 绩点:${item.jd} | 学分:${item.xf} | ${item.ksxz} | ${item.kcxzmc}`,
-      );
+      log("fetch", `${item.kcmc}: ${item.bfzcj} | 学分:${item.xf} | ${item.ksxz}`);
     }
 
     if (grades.length === 0) {
@@ -48,7 +45,7 @@ async function main() {
 
     if (changes.added.length > 0) {
       for (const item of changes.added) {
-        log("store", `+ ${item.kcmc}: ${item.bfzcj} (${item.cj})`);
+        log("store", `+ ${item.kcmc}: ${item.bfzcj} | 学分:${item.xf} | ${item.ksxz}`);
       }
     }
 
