@@ -19,10 +19,12 @@
 ```
 src/
   main.ts        # 主入口：登录 → 抓取 → 对比 → 通知
+  test.ts        # 测试脚本：逐步执行并打印完整日志
   auth.ts        # 登录模块（Playwright）
   fetch.ts       # 成绩数据获取
   store.ts       # JSON 读写，增量检测
   notify.ts      # 邮件通知（待实现）
+  retry.ts       # 失败重试工具
   config.ts      # 配置管理（读取 .env）
 data/
   grades.json    # 历史成绩存储
@@ -43,6 +45,7 @@ data/
 
 ```bash
 pnpm start           # 执行一次抓取+检测+通知
+pnpm test            # 测试模式：逐步执行并打印完整日志
 pnpm run lint        # ESLint 检查
 pnpm run format      # Prettier 格式化
 pnpm run typecheck   # tsc 类型检查

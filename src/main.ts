@@ -3,14 +3,19 @@ import { login } from "./auth.js";
 import { fetchGrades } from "./fetch.js";
 import { loadStore, detectChanges, saveStore } from "./store.js";
 import { notify } from "./notify.js";
+import { retry } from "./retry.js";
 
 async function main() {
   const config = loadConfig();
 
-  const page = await login(config.studentId, config.password);
+  const page = await retry(() => login(config.studentId, config.password), {
+    onRetry: (attempt, err) => console.error(`登录重试 ${attempt}/2:`, String(err)),
+  });
 
   try {
-    const grades = await fetchGrades(page);
+    const grades = await retry(() => fetchGrades(page), {
+      onRetry: (attempt, err) => console.error(`抓取重试 ${attempt}/2:`, String(err)),
+    });
     console.log(`获取到 ${grades.length} 条成绩记录`);
 
     const oldData = loadStore();
