@@ -86,7 +86,7 @@ crontab -e
 添加以下配置：
 
 ```cron
-*/30 8-23 * * * cd /path/to/gxu-score-script && node --env-file=.env --import tsx/esm src/main.ts >> /var/log/gxu-score.log 2>&1
+*/30 8-23 * * * cd /path/to/gxu-score-script && NODE_OPTIONS='--dns-result-order=ipv4first' node --env-file=.env --import tsx/esm src/main.ts >> /var/log/gxu-score.log 2>&1
 ```
 
 ## 技术栈

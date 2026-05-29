@@ -50,8 +50,7 @@ export async function notify(
         user: emailConfig.user,
         pass: emailConfig.pass,
       },
-      family: 4,
-    } as nodemailer.TransportOptions);
+    });
 
     const subject = `成绩变动通知: ${added.length > 0 ? `${added.length} 门新成绩` : ""}${added.length > 0 && changed.length > 0 ? ", " : ""}${changed.length > 0 ? `${changed.length} 门变动` : ""}`;
 
