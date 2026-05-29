@@ -18,7 +18,7 @@ function buildBody(changes: { added: GradeItem[]; changed: ChangeRecord[] }) {
   if (added.length > 0) {
     lines.push(`新成绩 (${added.length} 门):`);
     for (const item of added) {
-      lines.push(`  ${item.kcmc}: ${item.bfzcj} | 学分:${item.xf} | ${item.ksxz}`);
+      lines.push(`  ${item.kcmc}: ${item.bfzcj} | 学分: ${item.xf} | ${item.ksxz}`);
     }
   }
 
