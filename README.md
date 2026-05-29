@@ -89,3 +89,7 @@ crontab -e
 ## 技术栈
 
 TypeScript + Playwright + NodeMailer + crontab
+
+## 许可
+
+MIT License
