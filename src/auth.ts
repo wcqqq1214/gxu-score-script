@@ -8,7 +8,7 @@ export async function login(studentId: string, password: string): Promise<Page> 
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "zh-CN" });
   const page = await context.newPage();
 
-  await page.goto(LOGIN_URL, { waitUntil: "networkidle" });
+  await page.goto(LOGIN_URL, { waitUntil: "load", timeout: 30000 });
   await page.waitForTimeout(2000);
 
   await page.locator("#yhm").fill(studentId);

@@ -3,6 +3,7 @@ import { login } from "./auth.js";
 import { fetchGrades } from "./fetch.js";
 import { loadStore, detectChanges } from "./store.js";
 import { notify } from "./notify.js";
+import { retry } from "./retry.js";
 
 function log(step: string, ...args: unknown[]) {
   const now = new Date();
@@ -16,12 +17,16 @@ async function main() {
   log("config", `学号: ${config.studentId}`);
 
   log("auth", "登录中...");
-  const page = await login(config.studentId, config.password);
+  const page = await retry(() => login(config.studentId, config.password), {
+    onRetry: (attempt, err) => log("auth", `重试 ${attempt}/2: ${String(err)}`),
+  });
   log("auth", "登录成功");
 
   try {
     log("fetch", "抓取成绩...");
-    const grades = await fetchGrades(page);
+    const grades = await retry(() => fetchGrades(page), {
+      onRetry: (attempt, err) => log("fetch", `重试 ${attempt}/2: ${String(err)}`),
+    });
     log("fetch", `获取到 ${grades.length} 条记录`);
     for (const item of grades) {
       log(

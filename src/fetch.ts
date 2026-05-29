@@ -24,7 +24,7 @@ export interface GradeItem {
 }
 
 export async function fetchGrades(page: Page): Promise<GradeItem[]> {
-  await page.goto(GRADE_PAGE, { waitUntil: "networkidle", timeout: 15000 });
+  await page.goto(GRADE_PAGE, { waitUntil: "load", timeout: 30000 });
   await page.waitForTimeout(3000);
 
   const formData = await page.evaluate(() => {
