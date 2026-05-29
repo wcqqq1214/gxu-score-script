@@ -59,7 +59,7 @@ async function main() {
     }
 
     log("notify", "生成通知...");
-    notify(changes);
+    await notify(changes);
 
     log("done", "测试完成");
   } finally {

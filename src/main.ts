@@ -55,7 +55,7 @@ async function main() {
     }
 
     log("notify", "生成通知...");
-    notify(changes);
+    await notify(changes, config.email);
 
     saveStore(grades);
     log("store", `已保存 ${grades.length} 条记录`);

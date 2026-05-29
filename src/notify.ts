@@ -1,4 +1,6 @@
+import nodemailer from "nodemailer";
 import type { GradeItem } from "./fetch.js";
+import type { EmailConfig } from "./config.js";
 
 interface ChangeRecord {
   key: string;
@@ -9,7 +11,32 @@ interface ChangeRecord {
   newCjbdsj: string;
 }
 
-export function notify(changes: { added: GradeItem[]; changed: ChangeRecord[] }) {
+function buildBody(changes: { added: GradeItem[]; changed: ChangeRecord[] }) {
+  const { added, changed } = changes;
+  const lines: string[] = [];
+
+  if (added.length > 0) {
+    lines.push(`新成绩 (${added.length} 门):`);
+    for (const item of added) {
+      lines.push(`  ${item.kcmc}: ${item.bfzcj} (${item.cj}) | 绩点:${item.jd} | 学分:${item.xf} | ${item.ksxz}`);
+    }
+  }
+
+  if (changed.length > 0) {
+    if (lines.length > 0) lines.push("");
+    lines.push(`成绩变动 (${changed.length} 门):`);
+    for (const c of changed) {
+      lines.push(`  ${c.kcmc}: ${c.oldBfzcj} -> ${c.newBfzcj}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
+export async function notify(
+  changes: { added: GradeItem[]; changed: ChangeRecord[] },
+  emailConfig?: EmailConfig | null,
+) {
   const { added, changed } = changes;
 
   if (added.length === 0 && changed.length === 0) {
@@ -17,26 +44,33 @@ export function notify(changes: { added: GradeItem[]; changed: ChangeRecord[] })
     return;
   }
 
-  const lines: string[] = [];
-
-  if (added.length > 0) {
-    lines.push(`--- 新成绩 (${added.length} 门) ---`);
-    for (const item of added) {
-      lines.push(`${item.kcmc}: ${item.bfzcj} (${item.cj}) 绩点:${item.jd} 学分:${item.xf}`);
-    }
-  }
-
-  if (changed.length > 0) {
-    lines.push(`--- 成绩变动 (${changed.length} 门) ---`);
-    for (const c of changed) {
-      lines.push(`${c.kcmc}: ${c.oldBfzcj} -> ${c.newBfzcj}`);
-    }
-  }
-
-  const body = lines.join("\n");
+  const body = buildBody(changes);
   console.log(body);
 
-  // TODO: 通过 nodemailer 发送邮件
-  // const transporter = nodemailer.createTransport({ ... });
-  // await transporter.sendMail({ subject: "成绩变动通知", text: body });
+  if (!emailConfig) return;
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: emailConfig.host,
+      port: emailConfig.port,
+      secure: emailConfig.port === 465,
+      auth: {
+        user: emailConfig.user,
+        pass: emailConfig.pass,
+      },
+    });
+
+    const subject = `成绩变动通知: ${added.length > 0 ? `${added.length} 门新成绩` : ""}${added.length > 0 && changed.length > 0 ? ", " : ""}${changed.length > 0 ? `${changed.length} 门变动` : ""}`;
+
+    await transporter.sendMail({
+      from: emailConfig.user,
+      to: emailConfig.to,
+      subject,
+      text: body,
+    });
+
+    console.log("邮件已发送");
+  } catch (err) {
+    console.error("邮件发送失败:", String(err));
+  }
 }

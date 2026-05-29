@@ -12,10 +12,12 @@
     "check": "prettier --check src/ && eslint src/ && tsc --noEmit"
   },
   "dependencies": {
+    "nodemailer": "^8.0.9",
     "playwright": "^1.52.0"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
+    "@types/nodemailer": "^8.0.0",
     "@typescript-eslint/eslint-plugin": "^8.60.0",
     "@typescript-eslint/parser": "^8.60.0",
     "eslint": "^10.4.0",
