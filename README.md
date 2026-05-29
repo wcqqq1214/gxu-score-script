@@ -27,7 +27,7 @@ pnpm -v
 
 ```bash
 # 克隆仓库
-git clone git@github.com:wcqqq1214/gxu-score-script.git
+git clone https://github.com/wcqqq1214/gxu-score-script.git
 cd gxu-score-script
 
 # 安装依赖 & Playwright 浏览器
