@@ -13,7 +13,6 @@ export interface GradeItem {
   xf: string;
   jd: string;
   ksxz: string;
-  kkxbmc: string;
   jsxm: string;
   xnmmc: string;
   xqmmc: string;
