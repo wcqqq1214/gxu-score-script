@@ -5,7 +5,7 @@ import type { GradeItem } from "./fetch.js";
 const DATA_DIR = path.resolve("data");
 const DATA_FILE = path.join(DATA_DIR, "grades.json");
 
-interface ChangeRecord {
+export interface ChangeRecord {
   key: string;
   kcmc: string;
   oldBfzcj: string;

@@ -10,7 +10,7 @@
 - **浏览器自动化**: Playwright — 密码在客户端 RSA 加密，必须用浏览器执行 JS 完成登录。使用 headless 模式
 - **HTTP 客户端**: 浏览器 `fetch` API（复用 Playwright 登录后的 cookie 会话）
 - **数据存储**: 本地 JSON 文件
-- **邮件**: nodemailer（后续集成）
+- **邮件**: nodemailer
 - **定时调度**: crontab（每次执行后进程退出，不常驻）
 - **代码规范**: Prettier + ESLint（`@typescript-eslint`）+ TypeScript strict
 
@@ -23,9 +23,10 @@ src/
   auth.ts        # 登录模块（Playwright）
   fetch.ts       # 成绩数据获取
   store.ts       # JSON 读写，增量检测
-  notify.ts      # 邮件通知（待实现）
+  notify.ts      # 邮件通知
   retry.ts       # 失败重试工具
   config.ts      # 配置管理（读取 .env）
+  log.ts         # 日志工具（UTC+8 时间戳）
 data/
   grades.json    # 历史成绩存储
 ```

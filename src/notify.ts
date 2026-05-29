@@ -1,15 +1,7 @@
 import nodemailer from "nodemailer";
 import type { GradeItem } from "./fetch.js";
 import type { EmailConfig } from "./config.js";
-
-interface ChangeRecord {
-  key: string;
-  kcmc: string;
-  oldBfzcj: string;
-  newBfzcj: string;
-  oldCjbdsj: string;
-  newCjbdsj: string;
-}
+import type { ChangeRecord } from "./store.js";
 
 function buildBody(changes: { added: GradeItem[]; changed: ChangeRecord[] }) {
   const { added, changed } = changes;

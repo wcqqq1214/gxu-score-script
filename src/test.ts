@@ -4,12 +4,7 @@ import { fetchGrades } from "./fetch.js";
 import { loadStore, detectChanges } from "./store.js";
 import { notify } from "./notify.js";
 import { retry } from "./retry.js";
-
-function log(step: string, ...args: unknown[]) {
-  const now = new Date();
-  const ts = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().replace("T", " ").substring(0, 19);
-  console.log(`[${ts}] [${step}]`, ...args);
-}
+import { log } from "./log.js";
 
 async function main() {
   log("config", "加载配置...");
@@ -30,10 +25,6 @@ async function main() {
     log("fetch", `获取到 ${grades.length} 条记录`);
     for (const item of grades) {
       log("fetch", `${item.kcmc}: ${item.bfzcj} | 学分: ${item.xf} | ${item.ksxz}`);
-    }
-
-    if (grades.length === 0) {
-      log("fetch", "成绩列表为空");
     }
 
     log("store", "检测增量变动...");

@@ -4,12 +4,7 @@ import { fetchGrades } from "./fetch.js";
 import { loadStore, detectChanges, saveStore } from "./store.js";
 import { notify } from "./notify.js";
 import { retry } from "./retry.js";
-
-function log(step: string, ...args: unknown[]) {
-  const now = new Date();
-  const ts = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().replace("T", " ").substring(0, 19);
-  console.log(`[${ts}] [${step}]`, ...args);
-}
+import { log } from "./log.js";
 
 async function main() {
   log("config", "加载配置...");
