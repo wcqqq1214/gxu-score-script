@@ -59,7 +59,38 @@ async function main() {
     }
 
     log("notify", "生成通知...");
-    await notify(changes);
+    await notify(changes, config.email);
+
+    log("email", "发送测试邮件...");
+    if (config.email) {
+      await notify(
+        {
+          added: [
+            {
+              kcmc: "测试邮件",
+              bfzcj: "100",
+              cj: "100",
+              jd: "4.0",
+              xf: "0",
+              ksxz: "测试",
+              key: "test",
+              kch: "",
+              kkxbmc: "",
+              jsxm: "",
+              xnmmc: "",
+              xqmmc: "",
+              kcxzmc: "",
+              cjbdsj: "",
+              jxbmc: "",
+            },
+          ],
+          changed: [],
+        },
+        config.email,
+      );
+    } else {
+      log("email", "未配置 SMTP，跳过");
+    }
 
     log("done", "测试完成");
   } finally {
