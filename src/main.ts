@@ -12,7 +12,7 @@ async function main() {
   log("config", `学号: ${config.studentId}`);
 
   log("auth", "登录中...");
-  const page = await retry(() => login(config.studentId, config.password), {
+  const { page, browser } = await retry(() => login(config.studentId, config.password), {
     onRetry: (attempt, err) => log("auth", `重试 ${attempt}/2: ${String(err)}`),
   });
   log("auth", "登录成功");
@@ -58,6 +58,7 @@ async function main() {
     log("done", "完成");
   } finally {
     await page.close();
+    await browser.close();
   }
 }
 

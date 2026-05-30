@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "NODE_OPTIONS='--dns-result-order=ipv4first' node --env-file=.env --import tsx/esm src/main.ts",
-    "test": "NODE_OPTIONS='--dns-result-order=ipv4first' node --env-file=.env --import tsx/esm src/test.ts",
+    "start": "NODE_OPTIONS='--dns-result-order=ipv4first --max-old-space-size=512' node --env-file=.env --import tsx/esm src/main.ts",
+    "test": "NODE_OPTIONS='--dns-result-order=ipv4first --max-old-space-size=512' node --env-file=.env --import tsx/esm src/test.ts",
     "lint": "eslint src/",
     "format": "prettier --write src/",
     "typecheck": "tsc --noEmit",

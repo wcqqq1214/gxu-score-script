@@ -86,7 +86,7 @@ crontab -e
 添加以下配置：
 
 ```cron
-*/30 8-22 * * * cd /你的项目路径 && NODE_OPTIONS='--dns-result-order=ipv4first' node --env-file=.env --import tsx/esm src/main.ts >> /var/log/gxu-score.log 2>&1
+*/30 8-22 * * * cd /你的项目路径 && pkill -f chrome-headless-shell; NODE_OPTIONS='--dns-result-order=ipv4first --max-old-space-size=512' node --env-file=.env --import tsx/esm src/main.ts >> /var/log/gxu-score.log 2>&1
 ```
 
 ## 技术栈
