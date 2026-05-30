@@ -41,6 +41,11 @@ data/
    - 响应: JSON `{ items: [...], totalResult: N }`
 4. **成绩唯一标识**: `key` 字段 = `教学班ID-学号`
 5. **成绩变动检测字段**: `bfzcj`（百分制成绩）、`cjbdsj`（成绩变动时间）
+6. **教务系统 22:00 后不可用**：服务器夜间维护/关机，crontab 时间窗口需控制在 8:00-22:00
+7. **OOM 防护**: Playwright 每次 `chromium.launch()` 必须对应 `browser.close()`，否则内存泄漏
+   - 浏览器启动添加 `--no-sandbox --disable-dev-shm-usage --disable-gpu` 等省内存参数
+   - Node.js 通过 `--max-old-space-size=512` 限制堆内存
+   - 脚本启动时 `pkill -f chrome-headless-shell` 清理残留进程
 
 ## 命令
 
