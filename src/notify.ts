@@ -1,3 +1,4 @@
+import { lookup } from "node:dns/promises";
 import nodemailer from "nodemailer";
 import type { GradeItem } from "./fetch.js";
 import type { EmailConfig } from "./config.js";
@@ -25,6 +26,11 @@ function buildBody(changes: { added: GradeItem[]; changed: ChangeRecord[] }) {
   return lines.join("\n");
 }
 
+async function resolveIpv4(host: string) {
+  const result = await lookup(host, { family: 4 });
+  return result.address;
+}
+
 export async function notify(
   changes: { added: GradeItem[]; changed: ChangeRecord[] },
   emailConfig?: EmailConfig | null,
@@ -42,13 +48,18 @@ export async function notify(
   if (!emailConfig) return;
 
   try {
+    const smtpHost = await resolveIpv4(emailConfig.host);
+
     const transporter = nodemailer.createTransport({
-      host: emailConfig.host,
+      host: smtpHost,
       port: emailConfig.port,
       secure: emailConfig.port === 465,
       auth: {
         user: emailConfig.user,
         pass: emailConfig.pass,
+      },
+      tls: {
+        servername: emailConfig.host,
       },
     });
 
