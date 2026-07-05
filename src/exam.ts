@@ -81,6 +81,8 @@ function normalizeExamItem(raw: RawExamItem): ExamItem {
 
 function buildRequestBody(formData: Record<string, string>) {
   const body = { ...formData };
+  body.xnm ||= formData.cx_xnm || "";
+  body.xqm ||= formData.cx_xqm || "";
   body._search ||= "false";
   body.nd = String(Date.now());
   body["queryModel.showCount"] ||= "100";
