@@ -1,6 +1,6 @@
-# 广西大学成绩抓取脚本
+# 广西大学教务信息抓取脚本
 
-定时抓取广西大学教务系统（正方教务系统）成绩数据，检测新成绩或成绩变动，通过邮件发送通知。基于 Playwright + TypeScript，通过 crontab 定时执行。
+定时抓取广西大学教务系统（正方教务系统）成绩数据和考试安排，检测新成绩、成绩变动、新考试安排或考试安排变动，通过邮件发送通知。基于 Playwright + TypeScript，通过 crontab 定时执行。
 
 ## 前置依赖
 
@@ -67,13 +67,15 @@ SMTP 配置可选，不配置则仅在控制台输出通知。
 ## 命令
 
 ```bash
-pnpm start        # 执行抓取、对比、通知
-pnpm test         # 测试模式：完整日志、不存数据
-pnpm run lint     # ESLint 检查
-pnpm run format   # Prettier 格式化
+pnpm start         # 执行成绩和考试信息抓取、对比、通知
+pnpm test          # 测试模式：完整日志、不存数据
+pnpm run lint      # ESLint 检查
+pnpm run format    # Prettier 格式化
 pnpm run typecheck # tsc 类型检查
-pnpm run check    # 提交前完整检查
+pnpm run check     # 提交前完整检查
 ```
+
+成绩历史保存到 `data/grades.json`，考试安排历史保存到 `data/exams.json`。首次生成对应历史文件时只保存数据，不发送旧数据通知。
 
 ## 定时执行
 
