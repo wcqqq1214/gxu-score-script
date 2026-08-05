@@ -60,9 +60,10 @@ SMTP_PORT=465
 SMTP_USER=你的邮箱
 SMTP_PASS=你的授权码
 NOTIFY_EMAIL=接收通知的邮箱
+LOG_LEVEL=日志等级: debug/info/warn/error，默认 info
 ```
 
-SMTP 配置可选，不配置则仅在控制台输出通知。
+SMTP 配置可选，不配置则仅在控制台输出通知。`LOG_LEVEL=debug` 会额外打印每条成绩/考试明细，适合排查问题。
 
 ## 命令
 

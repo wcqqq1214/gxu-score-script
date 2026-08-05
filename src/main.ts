@@ -35,7 +35,7 @@ async function main() {
     });
     log("fetch", `获取到 ${grades.length} 条记录`);
     for (const item of grades) {
-      log("fetch", `${item.kcmc}: ${item.bfzcj} | 学分: ${item.xf} | ${item.ksxz}`);
+      log("fetch", `${item.kcmc}: ${item.bfzcj} | 学分: ${item.xf} | ${item.ksxz}`, "debug");
     }
 
     let exams: ExamItem[] | null = null;
@@ -47,7 +47,7 @@ async function main() {
       log("fetch", `获取到 ${exams.length} 条考试安排`);
       for (const item of exams) {
         const place = [item.cdxqmc || item.xqmc, item.cdmc].filter(Boolean).join(" ") || "地点未公布";
-        log("fetch", `${item.kcmc}: ${item.kssj || "时间未公布"} | ${place} | 座号: ${item.zwh || "未公布"}`);
+        log("fetch", `${item.kcmc}: ${item.kssj || "时间未公布"} | ${place} | 座号: ${item.zwh || "未公布"}`, "debug");
       }
     } catch (err) {
       log("fetch", `考试信息抓取失败，跳过考试检测: ${String(err)}`);
@@ -119,6 +119,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  log("fail", String(err));
+  log("fail", String(err), "error");
   process.exit(1);
 });
