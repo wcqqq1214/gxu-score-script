@@ -93,4 +93,4 @@ LOG_LEVEL=info # debug/info/warn/error，默认 info
 
 - 格式：`type: 中文描述`（如 `feat: 添加成绩抓取模块`、`fix: 修复登录失败问题`）
 - 中文描述简练，一句话说清改动目的
-- 结尾附带 `Co-authored-by: Codex <noreply@anthropic.com>`
+- 结尾附带 `Co-authored-by: Codex <noreply@openai.com>`
