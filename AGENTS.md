@@ -2,11 +2,11 @@
 
 ## 项目概述
 
-广西大学教务系统（正方教务系统）成绩监控脚本。定时抓取成绩数据，检测新成绩或成绩变动，通过邮件发送通知。
+广西大学教务系统（正方教务系统）成绩与考试安排监控脚本。定时抓取成绩数据和最新学期考试安排，检测新成绩、成绩变动、新考试安排或考试安排变动，通过邮件发送通知。
 
 ## 技术栈
 
-- **运行时**: Node.js 26 + TypeScript
+- **运行时**: Node.js >= 22 + TypeScript
 - **浏览器自动化**: Playwright — 密码在客户端 RSA 加密，必须用浏览器执行 JS 完成登录。使用 headless 模式
 - **HTTP 客户端**: 浏览器 `fetch` API（复用 Playwright 登录后的 cookie 会话）
 - **数据存储**: 本地 JSON 文件
@@ -22,6 +22,7 @@ src/
   test.ts        # 测试脚本：逐步执行并打印完整日志
   auth.ts        # 登录模块（Playwright）
   fetch.ts       # 成绩数据获取
+  exam.ts        # 考试安排获取
   store.ts       # JSON 读写，增量检测
   notify.ts      # 邮件通知
   retry.ts       # 失败重试工具
@@ -29,6 +30,7 @@ src/
   log.ts         # 日志工具（UTC+8 时间戳）
 data/
   grades.json    # 历史成绩存储
+  exams.json     # 最新学期考试安排存储
 ```
 
 ## 关键发现
@@ -39,10 +41,13 @@ data/
    - Content-Type: `application/x-www-form-urlencoded`
    - Body: `#searchForm` 表单字段（xnm, xqm, kcbjdm 等）
    - 响应: JSON `{ items: [...], totalResult: N }`
-4. **成绩唯一标识**: `key` 字段 = `教学班ID-学号`
-5. **成绩变动检测字段**: `bfzcj`（百分制成绩）、`cjbdsj`（成绩变动时间）
-6. **教务系统 22:00 后不可用**：服务器夜间维护/关机，crontab 时间窗口需控制在 8:00-22:00
-7. **OOM 防护**: Playwright 每次 `chromium.launch()` 必须对应 `browser.close()`，否则内存泄漏
+4. **考试安排接口**: `POST /jwglxt/kwgl/kscx_cxXsksxxIndex.html?doType=query&gnmkdm=N358105`
+   - 同样复用 `#searchForm` 表单字段（xnm, xqm 等）
+   - 响应: JSON `{ items: [...], totalResult: N }`
+5. **成绩唯一标识**: `key` 字段 = `教学班ID-学号`
+6. **成绩变动检测字段**: `bfzcj`（百分制成绩）、`cjbdsj`（成绩变动时间）
+7. **教务系统 22:00 后不可用**：服务器夜间维护/关机，crontab 时间窗口需控制在 8:00-22:00
+8. **OOM 防护**: Playwright 每次 `chromium.launch()` 必须对应 `browser.close()`，否则内存泄漏
    - 浏览器启动添加 `--no-sandbox --disable-dev-shm-usage --disable-gpu` 等省内存参数
    - Node.js 通过 `--max-old-space-size=512` 限制堆内存
    - 脚本启动时 `pkill -f chrome-headless-shell` 清理残留进程
@@ -63,9 +68,9 @@ pnpm run check       # 提交前检查（format check + lint + typecheck）
 ```
 GXU_STUDENT_ID=学号
 GXU_PASSWORD=密码
-# 邮件配置（后续添加）
+# 邮件配置（可选，不配置则仅在控制台输出通知）
 SMTP_HOST=
-SMTP_PORT=
+SMTP_PORT=465
 SMTP_USER=
 SMTP_PASS=
 NOTIFY_EMAIL=
