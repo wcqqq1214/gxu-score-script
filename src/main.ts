@@ -1,3 +1,4 @@
+import { closeBrowser, runTask, taskSignal } from "./runtime.js";
 import { loadConfig } from "./config.js";
 import { login } from "./auth.js";
 import { fetchExams, type ExamItem } from "./exam.js";
@@ -20,7 +21,6 @@ import { log } from "./log.js";
 async function main() {
   log("config", "加载配置...");
   const config = loadConfig();
-  log("config", `学号: ${config.studentId}`);
 
   log("auth", "登录中...");
   const { page, browser } = await retry(() => login(config.studentId, config.password), {
@@ -53,6 +53,7 @@ async function main() {
       log("fetch", `考试信息抓取失败，跳过考试检测: ${String(err)}`);
     }
 
+    taskSignal.throwIfAborted();
     const isFirstRun = !hasGradeStore();
     const oldData = loadStore();
     log("store", `历史记录: ${oldData.size} 条${isFirstRun ? " (首次运行)" : ""}`);
@@ -105,6 +106,7 @@ async function main() {
     log("notify", "生成通知...");
     await notify(gradeChangesForNotify, config.email, examChangesForNotify);
 
+    taskSignal.throwIfAborted();
     saveStore(grades);
     log("store", `已保存 ${grades.length} 条记录`);
     if (exams) {
@@ -113,12 +115,8 @@ async function main() {
     }
     log("done", "完成");
   } finally {
-    await page.close();
-    await browser.close();
+    await closeBrowser(browser);
   }
 }
 
-main().catch((err) => {
-  log("fail", String(err), "error");
-  process.exit(1);
-});
+void runTask(main);

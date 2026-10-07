@@ -1,22 +1,15 @@
 import { chromium, type Browser, type Page } from "playwright";
-import { execSync } from "node:child_process";
+import { closeBrowser, taskSignal } from "./runtime.js";
 
 const BASE = "https://jwxt2018.gxu.edu.cn";
 const LOGIN_URL = `${BASE}/jwglxt/xtgl/login_slogin.html`;
 
-function cleanupZombies() {
-  try {
-    execSync("pkill -f chrome-headless-shell", { timeout: 5000 });
-  } catch {
-    // 没有残留进程则忽略
-  }
-}
-
 export async function login(studentId: string, password: string): Promise<{ page: Page; browser: Browser }> {
-  cleanupZombies();
+  taskSignal.throwIfAborted();
 
   const browser = await chromium.launch({
     headless: true,
+    timeout: 60000,
     args: [
       "--no-sandbox",
       "--disable-dev-shm-usage",
@@ -34,7 +27,9 @@ export async function login(studentId: string, password: string): Promise<{ page
   });
 
   try {
+    taskSignal.throwIfAborted();
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "zh-CN" });
+    context.setDefaultTimeout(30000);
     const page = await context.newPage();
 
     await page.goto(LOGIN_URL, { waitUntil: "load", timeout: 30000 });
@@ -59,7 +54,14 @@ export async function login(studentId: string, password: string): Promise<{ page
 
     return { page, browser };
   } catch (err) {
-    await browser.close();
+    try {
+      await closeBrowser(browser);
+    } catch (cleanupError) {
+      throw new AggregateError(
+        [err, cleanupError],
+        `登录失败且浏览器清理失败: ${String(err)}; ${String(cleanupError)}`,
+      );
+    }
     throw err;
   }
 }

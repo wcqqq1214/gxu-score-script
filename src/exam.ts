@@ -118,7 +118,9 @@ export async function fetchExams(page: Page): Promise<ExamItem[]> {
         },
         body: formBody,
         credentials: "include",
+        signal: AbortSignal.timeout(30000),
       });
+      if (!resp.ok) throw new Error(`教务接口返回 HTTP ${resp.status}`);
       return await resp.json();
     },
     { url: EXAM_DATA_URL, body: buildRequestBody(formData) },

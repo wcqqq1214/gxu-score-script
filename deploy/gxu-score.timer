@@ -1,0 +1,11 @@
+[Unit]
+Description=Run GXU monitor every 30 minutes during daytime
+
+[Timer]
+OnCalendar=*-*-* 08..21:00,30:00 Asia/Shanghai
+AccuracySec=1s
+Persistent=false
+Unit=gxu-score.service
+
+[Install]
+WantedBy=timers.target

@@ -1,3 +1,4 @@
+import { log } from "./log.js";
 import { lookup } from "node:dns/promises";
 import nodemailer from "nodemailer";
 import type { ExamItem } from "./exam.js";
@@ -108,12 +109,12 @@ export async function notify(
   const hasExamChanges = examChanges.added.length > 0 || examChanges.changed.length > 0;
 
   if (!hasGradeChanges && !hasExamChanges) {
-    console.log("无成绩或考试变动");
+    log("notify", "无成绩或考试变动");
     return;
   }
 
   const body = buildBody(gradeChanges, examChanges);
-  console.log(body);
+  log("notify", body);
 
   if (!emailConfig) return;
 
@@ -142,8 +143,8 @@ export async function notify(
       text: body,
     });
 
-    console.log("邮件已发送");
+    log("notify", "邮件已发送");
   } catch (err) {
-    console.error("邮件发送失败:", String(err));
+    log("notify", `邮件发送失败: ${String(err)}`, "error");
   }
 }

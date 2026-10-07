@@ -44,7 +44,9 @@ export async function fetchGrades(page: Page): Promise<GradeItem[]> {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: formBody,
         credentials: "include",
+        signal: AbortSignal.timeout(30000),
       });
+      if (!resp.ok) throw new Error(`教务接口返回 HTTP ${resp.status}`);
       return await resp.json();
     },
     { url: DATA_URL, body: formData },

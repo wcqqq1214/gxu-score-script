@@ -1,3 +1,6 @@
+import { setTimeout } from "node:timers/promises";
+import { recordRetry, taskSignal } from "./runtime.js";
+
 interface RetryOptions {
   maxAttempts: number;
   delayMs: number;
@@ -15,13 +18,18 @@ export async function retry<T>(fn: () => Promise<T>, options?: Partial<RetryOpti
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= opts.maxAttempts; attempt++) {
+    taskSignal.throwIfAborted();
     try {
-      return await fn();
+      const result = await fn();
+      taskSignal.throwIfAborted();
+      return result;
     } catch (error) {
+      if (taskSignal.aborted) throw error;
       lastError = error;
       if (attempt < opts.maxAttempts) {
+        recordRetry();
         opts.onRetry(attempt, error);
-        await new Promise((resolve) => setTimeout(resolve, opts.delayMs));
+        await setTimeout(opts.delayMs, undefined, { signal: taskSignal });
       }
     }
   }

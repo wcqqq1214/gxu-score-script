@@ -1,3 +1,4 @@
+import { closeBrowser, runTask, taskSignal } from "./runtime.js";
 import { loadConfig } from "./config.js";
 import { login } from "./auth.js";
 import { fetchExams } from "./exam.js";
@@ -10,7 +11,6 @@ import { log } from "./log.js";
 async function main() {
   log("config", "加载配置...");
   const config = loadConfig();
-  log("config", `学号: ${config.studentId}`);
 
   log("auth", "登录中...");
   const { page, browser } = await retry(() => login(config.studentId, config.password), {
@@ -75,6 +75,7 @@ async function main() {
       }
     }
 
+    taskSignal.throwIfAborted();
     log("email", "发送测试邮件...");
     if (config.email) {
       await notify(
@@ -132,16 +133,8 @@ async function main() {
 
     log("done", "测试完成");
   } finally {
-    await page.close();
-    await browser.close();
+    await closeBrowser(browser);
   }
 }
 
-main()
-  .catch((err) => {
-    log("fail", String(err), "error");
-    process.exit(1);
-  })
-  .finally(() => {
-    setTimeout(() => process.exit(0), 500);
-  });
+void runTask(main);
