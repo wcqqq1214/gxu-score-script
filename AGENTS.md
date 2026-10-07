@@ -1,5 +1,14 @@
 # AGENTS.md
 
+## Task execution
+
+- Treat an implementation or artifact request as authorization for the necessary work within that scope; review-only requests remain read-only. Continue through the deliverable and relevant verification.
+- Reuse the conversation, project evidence, and prior decisions before asking. Resolve routine, reversible choices yourself. Ask only when a missing fact materially affects correctness, scope, or an action's authorization and cannot reasonably be inferred.
+- An explicit request for an action already authorizes that action within its stated target and scope; do not request the same approval at each step. Honor explicit user checkpoints and runtime permissions. Progress notices and agent checks do not require a reply; silence is not approval.
+- Prepare authorized work before requesting any still-missing approval. A blocker pauses only dependent steps; continue useful independent work. If a Skill causes a pause, identify its exact file and rule and explain why it applies.
+- Use Skills for their relevant domain guidance. User instructions take precedence over Skill guidelines, subject to higher-priority instructions. Do not add a spec, dependency, review round, worktree, test suite, or external action merely because a template lists it.
+- Match implementation and validation to the actual risk. When required checks pass and the requested outcome is met, deliver it. If blocked after meaningful diagnosis and feasible alternatives, report completed work, remaining work, evidence, and the minimum input needed; do not call partial work complete or retry unchanged failures indefinitely.
+
 ## 项目概述
 
 广西大学教务系统（正方教务系统）成绩与考试安排监控脚本。定时抓取成绩数据和最新学期考试安排，检测新成绩、成绩变动、新考试安排或考试安排变动，通过邮件发送通知。
@@ -50,7 +59,7 @@ data/
 8. **OOM 防护**: Playwright 每次 `chromium.launch()` 必须对应 `browser.close()`，否则内存泄漏
    - 浏览器启动添加 `--no-sandbox --disable-dev-shm-usage --disable-gpu` 等省内存参数
    - Node.js 通过 `--max-old-space-size=512` 限制堆内存
-   - 脚本启动时 `pkill -f chrome-headless-shell` 清理残留进程
+   - 清理残留进程时先核对本任务启动的 PID/进程组，只终止本任务拥有的进程；不要以宽泛名称匹配杀掉其他浏览器会话。
 
 ## 命令
 
@@ -83,11 +92,11 @@ LOG_LEVEL=info # debug/info/warn/error，默认 info
 - ESM 模块（`"type": "module"`）
 - 无注释（命名自解释），除非逻辑不显而易见
 - 不使用 emoji（包括注释、commit message、文档）
-- 单文件职责单一，不超过 150 行
+- 单文件保持职责内聚；只有拆分能改善理解、复用或测试时才拆分，不用 150 行作为硬门槛。
 - 不做过度抽象：三个类似的行胜过一个不成熟的抽象
 - 仅处理真实存在的错误场景，不防御不可能的情况
 
-提交前必须通过 `pnpm run check`（prettier 格式检查 + eslint + tsc 类型检查）。
+代码或构建配置修改在提交前必须通过 `pnpm run check`（prettier 格式检查 + eslint + tsc 类型检查）；纯文档修改检查对应格式、链接和指令一致性。`pnpm start` 包含真实抓取和邮件通知，不作为普通代码修改的默认验证；只有本次任务已授权这些外部动作才运行。
 
 ## Commit 规范
 
