@@ -1,4 +1,5 @@
 import type { Page } from "playwright";
+import { fetchAllPages } from "./query.js";
 
 const BASE = "https://jwxt2018.gxu.edu.cn";
 const EXAM_PAGE = `${BASE}/jwglxt/kwgl/kscx_cxXsksxxIndex.html?gnmkdm=N358105`;
@@ -39,7 +40,7 @@ function firstValue(item: Record<string, string>, keys: string[]) {
   return "";
 }
 
-function buildExamKey(item: Record<string, string>) {
+function legacyExamKey(item: Record<string, string>) {
   const parts = [
     firstValue(item, ["ksmc", "kssj"]),
     firstValue(item, ["kch", "kcmc"]),
@@ -48,6 +49,27 @@ function buildExamKey(item: Record<string, string>) {
   ].filter(Boolean);
 
   return parts.length > 0 ? parts.join("-") : Object.values(item).join("-");
+}
+
+function examCourse(item: Record<string, string>) {
+  return [firstValue(item, ["kch", "kcmc"]), firstValue(item, ["jxb_id", "jxbmc"])];
+}
+
+function buildExamKey(item: Record<string, string>) {
+  const course = examCourse(item);
+  if (!course.some(Boolean)) throw new Error("考试记录缺少课程或教学班标识");
+  return JSON.stringify(["exam-v2", item.xnm || "", item.xqm || "", ...course, item.ksmc || ""]);
+}
+
+export function hasDerivedExamKey(item: ExamItem) {
+  return item.key === legacyExamKey(item) || (examCourse(item).some(Boolean) && item.key === buildExamKey(item));
+}
+
+export function sameExamCourse(a: ExamItem, b: ExamItem) {
+  return (
+    JSON.stringify(examCourse(a)) === JSON.stringify(examCourse(b)) &&
+    ["xnm", "xqm"].every((field) => !a[field] || !b[field] || a[field] === b[field])
+  );
 }
 
 function normalizeExamItem(raw: RawExamItem): ExamItem {
@@ -85,8 +107,6 @@ function buildRequestBody(formData: Record<string, string>) {
   body.xqm ||= formData.cx_xqm || "";
   body._search ||= "false";
   body.nd = String(Date.now());
-  body["queryModel.showCount"] ||= "100";
-  body["queryModel.currentPage"] ||= "1";
   body["queryModel.sortName"] ||= "";
   body["queryModel.sortOrder"] ||= "asc";
   body.time ||= "0";
@@ -107,24 +127,12 @@ export async function fetchExams(page: Page): Promise<ExamItem[]> {
     return data;
   });
 
-  const result = (await page.evaluate(
-    async ({ url, body }: { url: string; body: Record<string, string> }) => {
-      const formBody = new URLSearchParams(body).toString();
-      const resp = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-        body: formBody,
-        credentials: "include",
-        signal: AbortSignal.timeout(30000),
-      });
-      if (!resp.ok) throw new Error(`教务接口返回 HTTP ${resp.status}`);
-      return await resp.json();
-    },
-    { url: EXAM_DATA_URL, body: buildRequestBody(formData) },
-  )) as { items?: RawExamItem[] };
-
-  return Array.isArray(result.items) ? result.items.map(normalizeExamItem) : [];
+  const body = buildRequestBody(formData);
+  const items = (await fetchAllPages(page, EXAM_DATA_URL, body)).map((raw) =>
+    normalizeExamItem({ xnm: body.xnm, xqm: body.xqm, ...raw }),
+  );
+  if (new Set(items.map((item) => item.key)).size !== items.length) {
+    throw new Error("考试记录标识重复，无法区分考试场次");
+  }
+  return items;
 }

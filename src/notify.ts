@@ -125,6 +125,7 @@ export async function notify(
       host: smtpHost,
       port: emailConfig.port,
       secure: emailConfig.port === 465,
+      requireTLS: true,
       auth: {
         user: emailConfig.user,
         pass: emailConfig.pass,
@@ -146,5 +147,6 @@ export async function notify(
     log("notify", "邮件已发送");
   } catch (err) {
     log("notify", `邮件发送失败: ${String(err)}`, "error");
+    throw err;
   }
 }

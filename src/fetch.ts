@@ -1,4 +1,5 @@
 import type { Page } from "playwright";
+import { fetchAllPages } from "./query.js";
 
 const BASE = "https://jwxt2018.gxu.edu.cn";
 const GRADE_PAGE = `${BASE}/jwglxt/cjcx/cjcx_cxDgXscj.html?gnmkdm=N305005`;
@@ -36,21 +37,13 @@ export async function fetchGrades(page: Page): Promise<GradeItem[]> {
     return data;
   });
 
-  const result = await page.evaluate(
-    async ({ url, body }: { url: string; body: Record<string, string> }) => {
-      const formBody = new URLSearchParams(body).toString();
-      const resp = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: formBody,
-        credentials: "include",
-        signal: AbortSignal.timeout(30000),
-      });
-      if (!resp.ok) throw new Error(`教务接口返回 HTTP ${resp.status}`);
-      return await resp.json();
-    },
-    { url: DATA_URL, body: formData },
-  );
-
-  return result.items ?? [];
+  const items = await fetchAllPages(page, DATA_URL, formData);
+  const keys = new Set<string>();
+  for (const item of items) {
+    if (typeof item.key !== "string" || !item.key || keys.has(item.key)) {
+      throw new Error("成绩记录缺少唯一标识或标识重复");
+    }
+    keys.add(item.key);
+  }
+  return items as GradeItem[];
 }

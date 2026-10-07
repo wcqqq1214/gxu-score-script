@@ -30,7 +30,7 @@ NOTIFY_EMAIL=接收通知的邮箱
 LOG_LEVEL=info
 ```
 
-SMTP 配置可选，不配置则仅在控制台输出通知。配置完成后运行 `pnpm start`；排查抓取问题可用 `pnpm test`，打印详细日志但不保存数据。
+SMTP 配置可选，不配置则仅在控制台输出通知。465 端口使用隐式 TLS，其他端口必须支持 STARTTLS。配置完成后运行 `pnpm start`；排查抓取问题可用 `pnpm test`，打印详细日志但不保存数据。
 
 历史数据保存在 `data/grades.json` 和 `data/exams.json`。首次运行只建立基线，不发送旧数据通知；更新或迁移时保留 `data/`。
 
@@ -73,13 +73,13 @@ sudo systemctl stop gxu-score.timer gxu-score.service
 ```bash
 pnpm run check     # 格式、ESLint、TypeScript 检查
 pnpm run format    # 格式化源码
-node --import tsx/esm --test tests/lifecycle.test.mjs
+node --import tsx/esm --test tests/*.test.mjs
 
 # Linux：使用独立 service 和真实 Chromium 验证完成、失败、超时及防重叠
 sudo python3 tests/verify-systemd.py
 ```
 
-上述测试使用模拟教务页面，不访问学校、不发邮件、不修改生产数据。真实抓取使用 `pnpm test`，需在教务系统开放时段执行。`LOG_LEVEL=debug` 会打印成绩与考试明细。
+离线测试使用模拟教务页面和本地 SMTP，不访问学校、不发送真实邮件、不修改生产数据；SMTP 测试需要系统提供 `openssl`。真实抓取使用 `pnpm test`，需在教务系统开放时段执行，配置 SMTP 时会发送测试邮件。`LOG_LEVEL=debug` 会打印成绩与考试明细。
 
 ## 许可
 

@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import type { ExamItem } from "./exam.js";
+import { hasDerivedExamKey, sameExamCourse, type ExamItem } from "./exam.js";
 import type { GradeItem } from "./fetch.js";
 
 const DATA_DIR = path.resolve("data");
@@ -93,8 +93,40 @@ export function detectChanges(oldData: Map<string, GradeItem>, newItems: GradeIt
 export function detectExamChanges(oldData: Map<string, ExamItem>, newItems: ExamItem[]) {
   const changes: { added: ExamItem[]; changed: ExamChangeRecord[] } = { added: [], changed: [] };
 
+  const matches = new Map<string, ExamItem>();
+  const remainingOld = new Set(oldData.values());
+  const remainingNew = new Set(newItems);
   for (const item of newItems) {
     const old = oldData.get(item.key);
+    if (old) {
+      matches.set(item.key, old);
+      remainingOld.delete(old);
+      remainingNew.delete(item);
+    }
+  }
+
+  for (const matchBatch of [true, false]) {
+    const compatible = (old: ExamItem, item: ExamItem) =>
+      hasDerivedExamKey(old) &&
+      hasDerivedExamKey(item) &&
+      sameExamCourse(old, item) &&
+      (!matchBatch || old.ksmc === item.ksmc);
+    for (const item of remainingNew) {
+      const candidates = [...remainingOld].filter((old) => compatible(old, item));
+      if (candidates.length === 0) continue;
+      const old = candidates[0];
+      if (candidates.length !== 1 || [...remainingNew].filter((next) => compatible(old, next)).length !== 1) {
+        if (matchBatch) continue;
+        throw new Error("历史考试与新考试无法唯一匹配，保留原有数据");
+      }
+      matches.set(item.key, old);
+      remainingOld.delete(old);
+      remainingNew.delete(item);
+    }
+  }
+
+  for (const item of newItems) {
+    const old = matches.get(item.key);
     if (!old) {
       changes.added.push(item);
     } else if (EXAM_CHANGE_FIELDS.some((field) => old[field] !== item[field])) {
